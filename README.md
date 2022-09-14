@@ -1,4 +1,4 @@
-# React-Invoicing
+# We Movies
 
 ![GitHub](https://img.shields.io/github/license/vimigueloli/wemovies?color=brigthgreen&style=plastic) <br/>
 
