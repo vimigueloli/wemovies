@@ -4,7 +4,7 @@ import * as G from "@/styles/GlobalStyles";
 import * as S from "@/styles/cartStyles";
 import Header from "@/components/header";
 import { money } from "@/utils/money";
-import CartItem from "@/components/cartItem";
+import CartItem from "../../components/cartItem";
 import { Cart, CartUpdater } from "@/context/cart";
 import empty from "@/../public/emptyCart.svg";
 import { useRouter } from "next/router";
