@@ -1,190 +1,264 @@
-import React, { useState, useEffect } from "react";
-import * as S from "../../styles/cart/styles";
-import * as G from "styles/GlobalStyles";
-import Carttable from "components/CartTable";
-import CartItem from "components/CartItem";
-import empty from "public/assets/empty.svg";
-import done from "public/assets/over.svg";
-import { parseCookies } from "nookies";
-import { FiArrowLeftCircle } from "react-icons/fi";
+import React, { useState, useContext, useEffect } from "react";
+import Background from "@/components/background";
+import * as G from "@/styles/GlobalStyles";
+import * as S from "@/styles/cartStyles";
+import Header from "@/components/header";
+import { money } from "@/utils/money";
+import CartItem from "@/components/cartItem";
+import { Cart, CartUpdater } from "@/context/cart";
+import empty from "@/../public/emptyCart.svg";
 import { useRouter } from "next/router";
-import { money } from "components/masks";
-import Image from "next/image";
-import { useDispatch } from "react-redux";
-import { removeAll } from "services/redux";
+import toast from "react-hot-toast";
+import ReactLoading from "react-loading";
+import finish from "@/../public/finish.svg";
 
-export default function Cart() {
+export default function CartPage() {
+    const [loading, setLoading] = useState<boolean>(false);
+    const [finished, setFinished] = useState<boolean>(false);
+    const [total, setTotal] = useState<number>(0);
+    const cart = useContext(Cart);
+    const setCart: any = useContext(CartUpdater).update;
     const router = useRouter();
-    const dispatch = useDispatch();
-    const [items, setItems] = useState<any[]>([]);
-    const [total, setTotal] = useState(0);
-    const [bought, setBought] = useState(false);
 
-    // ? get the shopping cart
-    useEffect(() => {
-        const cookies = parseCookies();
-        if (
-            cookies.cart !== undefined &&
-            cookies.cart !== null &&
-            cookies.cart !== ""
-        ) {
-            setItems(JSON.parse(cookies.cart));
-        }
-    }, []);
-
-    // ? updates the total
-    useEffect(() => {
-        let outputSubtotal = 0;
-        items.map((item) => {
-            outputSubtotal += item.price * item.quantity;
-        });
-        setTotal(outputSubtotal);
-    }, [items]);
-
-    async function buy() {
+    async function handleBuy() {
+        setLoading(true);
         try {
-            // todo change the api route
-            //! await api.post("/buy", items);
-            setBought(true);
-            dispatch(removeAll({}));
-        } catch {
-            console.log("erro");
+            // todo  // espaço para integração de api para finalização da compra
+            setTimeout(() => {
+                setCart([]);
+                setFinished(true);
+                setLoading(false);
+            }, 1000);
+        } catch (e) {
+            toast.error("falha ao finalizar pedido!");
+            console.log(e);
+            setLoading(false);
         }
     }
 
+    useEffect(() => {
+        let output = cart.reduce(
+            (acc, item: any) => acc + item.price * item.quantity,
+            0
+        );
+        setTotal(output);
+    }, [cart]);
+
     return (
-        <>
-            {
-                // * items on cart
-                items.length > 0 && !bought && (
-                    <>
-                        <S.Container>
-                            <S.ResponsiveConrainer>
-                                <G.Line justify="start" top="12px" left="12px">
-                                    <S.ColorHover onClick={() => router.back()}>
-                                        <FiArrowLeftCircle size="1.7em" />
-                                    </S.ColorHover>
-                                </G.Line>
-                                <Carttable>
-                                    {items.map((item, idx) => (
-                                        <CartItem
-                                            key={item.id}
-                                            id={item.id}
-                                            name={item.name}
-                                            price={item.price}
-                                            image={item.image}
-                                            quantity={item.quantity}
-                                            items={items}
-                                            setItems={setItems}
-                                            idx={idx}
-                                        />
-                                    ))}
-                                </Carttable>
-                                <S.Separator />
-                                <G.Line
-                                    width="auto"
-                                    justify="space-between"
-                                    bottom="12px"
-                                    left="16px"
-                                    right="16px"
-                                >
-                                    <G.Button onClick={() => buy()}>
-                                        FINALIZAR PEDIDO
-                                    </G.Button>
-                                    <G.Line align="end">
-                                        <G.Line right="4px">
+        <Background>
+            <G.Line>
+                <Header />
+            </G.Line>
+            <G.Line>
+                <S.Container>
+                    {loading && (
+                        <G.Line>
+                            <ReactLoading type="spin" />
+                        </G.Line>
+                    )}
+
+                    {!loading && !finished && (
+                        <>
+                            {cart.length > 0 && (
+                                <S.WhiteContainer>
+                                    {
+                                        // * desktop cart list * //
+                                        <G.Line desktopOnly={true}>
+                                            <S.Grid>
+                                                <G.Text
+                                                    color="#999999"
+                                                    weight="700"
+                                                    size="14px"
+                                                >
+                                                    PRODUTO
+                                                </G.Text>
+                                                <G.Text
+                                                    color="#999999"
+                                                    weight="700"
+                                                    size="14px"
+                                                >
+                                                    QTD
+                                                </G.Text>
+                                                <G.Text
+                                                    color="#999999"
+                                                    weight="700"
+                                                    size="14px"
+                                                >
+                                                    SUBTOTAL
+                                                </G.Text>
+                                                <G.Line />
+                                                {cart.map((item: any) => (
+                                                    <CartItem
+                                                        key={item.id}
+                                                        id={item.id}
+                                                        title={item.title}
+                                                        price={item.price}
+                                                        quantity={item.quantity}
+                                                        image={item.image}
+                                                    />
+                                                ))}
+                                            </S.Grid>
+                                        </G.Line>
+                                    }
+
+                                    {
+                                        // * mobile cart list * //
+                                        <G.Line
+                                            direction="column"
+                                            gap="21px"
+                                            mobileOnly={true}
+                                        >
+                                            {cart.map((item: any) => (
+                                                <CartItem
+                                                    key={item.id}
+                                                    id={item.id}
+                                                    title={item.title}
+                                                    price={item.price}
+                                                    quantity={item.quantity}
+                                                    image={item.image}
+                                                />
+                                            ))}
+                                        </G.Line>
+                                    }
+
+                                    <G.Line
+                                        width="100%"
+                                        height="1px"
+                                        color="#999999"
+                                        top="21px"
+                                        bottom="21px"
+                                    />
+                                    {
+                                        // * desktop cart finalization section * //
+                                        <G.Line
+                                            desktopOnly={true}
+                                            justify="space-between"
+                                        >
+                                            <G.Button
+                                                onClick={() => handleBuy()}
+                                            >
+                                                <G.Text
+                                                    weight="700"
+                                                    align="center"
+                                                >
+                                                    REALIZAR PEDIDO
+                                                </G.Text>
+                                            </G.Button>
+                                            <G.Line gap="16px">
+                                                <G.Text
+                                                    size="14px"
+                                                    weight="700"
+                                                    color="#999999"
+                                                >
+                                                    TOTAL
+                                                </G.Text>
+                                                <G.Text
+                                                    size="24px"
+                                                    weight="700"
+                                                    color="#2F2E41"
+                                                >
+                                                    {money.format(total)}
+                                                </G.Text>
+                                            </G.Line>
+                                        </G.Line>
+                                    }
+                                    {
+                                        // * mobile cart finalization section * //
+                                        <G.Line
+                                            mobileOnly={true}
+                                            justify="space-between"
+                                            align="center"
+                                            gap="16px"
+                                            wrap={true}
+                                        >
                                             <G.Text
-                                                color="#999999"
                                                 size="14px"
                                                 weight="700"
+                                                color="#999999"
                                             >
                                                 TOTAL
                                             </G.Text>
+                                            <G.Text
+                                                size="24px"
+                                                weight="700"
+                                                color="#2F2E41"
+                                            >
+                                                {money.format(total)}
+                                            </G.Text>
+                                            <G.Button
+                                                width="100%"
+                                                onClick={() => handleBuy()}
+                                            >
+                                                <G.Text
+                                                    weight="700"
+                                                    align="center"
+                                                >
+                                                    REALIZAR PEDIDO
+                                                </G.Text>
+                                            </G.Button>
                                         </G.Line>
-                                        <G.Text
-                                            color="#2F2E41"
-                                            size="24px"
-                                            weight="700"
-                                        >
-                                            {money.format(total)}
-                                        </G.Text>
-                                    </G.Line>
-                                </G.Line>
-                            </S.ResponsiveConrainer>
-                        </S.Container>
-                        <G.Line height="12px" />
-                    </>
-                )
-            }
-            {
-                // * no items on cart
-                items.length === 0 && !bought && (
-                    <G.Line width="100%">
-                        <S.NullContainer>
-                            <div>
-                                <G.Line bottom="50px">
-                                    <G.Text
-                                        color="#2F2E41"
-                                        size="20px"
-                                        weight="700"
-                                    >
-                                        Parece que não há nada por aqui :(
-                                    </G.Text>
-                                </G.Line>
-                                <G.Line>
-                                    <S.ImageSizer>
-                                        <Image
-                                            src={empty}
-                                            alt="carrinho vazio"
-                                            layout="fill"
+                                    }
+                                </S.WhiteContainer>
+                            )}
+                            {cart.length === 0 && (
+                                <S.EmptyContainer>
+                                    <G.Line direction="column">
+                                        <G.Line bottom="24px">
+                                            <G.Text
+                                                color="#2F2E41"
+                                                weight="700"
+                                                size="20px"
+                                                align="center"
+                                            >
+                                                Adicione itens ao carrinho para
+                                                prosseguir
+                                            </G.Text>
+                                        </G.Line>
+                                        <img src={empty.src} />
+                                        <G.Line
+                                            width="33%"
+                                            height="1px"
+                                            color="black"
+                                            bottom="24px"
                                         />
-                                    </S.ImageSizer>
-                                </G.Line>
+                                        <G.Button
+                                            onClick={() => router.push("/")}
+                                        >
+                                            Voltar aos produtos
+                                        </G.Button>
+                                    </G.Line>
+                                </S.EmptyContainer>
+                            )}
+                        </>
+                    )}
 
-                                <G.Line top="32px">
-                                    <G.Button onClick={() => router.back()}>
-                                        VOLTAR
-                                    </G.Button>
-                                </G.Line>
-                            </div>
-                        </S.NullContainer>
-                    </G.Line>
-                )
-            }
-            {
-                // * done buying
-                bought && (
-                    <G.Line width="100%">
-                        <S.NullContainer>
-                            <div>
-                                <G.Line bottom="50px">
+                    {!loading && finished && (
+                        <S.EmptyContainer>
+                            <G.Line direction="column">
+                                <G.Line bottom="24px">
                                     <G.Text
                                         color="#2F2E41"
-                                        size="20px"
                                         weight="700"
+                                        size="20px"
+                                        align="center"
                                     >
                                         Compra realizada com sucesso!
                                     </G.Text>
                                 </G.Line>
-                                <G.Line>
-                                    <S.ImageSizer>
-                                        <Image
-                                            src={done}
-                                            alt="carrinho vazio"
-                                            height={264}
-                                        />
-                                    </S.ImageSizer>
-                                </G.Line>
-                                <G.Line top="32px">
-                                    <G.Button onClick={() => router.back()}>
-                                        VOLTAR
-                                    </G.Button>
-                                </G.Line>
-                            </div>
-                        </S.NullContainer>
-                    </G.Line>
-                )
-            }
-        </>
+                                <img src={finish.src} />
+                                <G.Line
+                                    width="33%"
+                                    height="1px"
+                                    bottom="24px"
+                                />
+                                <G.Button onClick={() => router.push("/")}>
+                                    VOLTAR
+                                </G.Button>
+                            </G.Line>
+                        </S.EmptyContainer>
+                    )}
+                </S.Container>
+            </G.Line>
+        </Background>
     );
 }

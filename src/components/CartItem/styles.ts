@@ -1,27 +1,24 @@
 import styled from 'styled-components'
 
-interface HoverProps{
-    disabled?: boolean
-}
-
-export const OpacityHover= styled.div<HoverProps>`
-    color: ${props => props.disabled? '#999999' : '#009EDD'} ;
-    opacity: 1;
-    cursor: pointer;
-    margin-right: 8px;
-    :hover{
-        opacity: 0.50;
-    }
-`;
-
-export const Input = styled.input`
-    width: 42px;
-    height: 27px;
+export const NumberBox = styled.div`
+    width: 62px;
+    height: 26px;
     border-radius: 4px;
-    padding-left: 4px;
-    border: solid 1px #D9D9D9;
-    font-size: 14px;
-    font-weight: 400;
-    font-family: 'Open Sans', sans-serif;
-    margin-right: 8px;
+    border: 1px solid #D9D9D9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
+
+export const TransparentButton = styled.button`
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
+    :hover{
+        transition: opacity 0.5s ease-in-out;
+        opacity: 0.4;
+    }
+`
+

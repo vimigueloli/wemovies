@@ -1,142 +1,199 @@
-/* eslint-disable @next/next/no-img-element */
-import React, { useState, useEffect } from "react";
+import React, { useContext } from "react";
+import * as G from "@/styles/GlobalStyles";
 import * as S from "./styles";
-import * as G from "styles/GlobalStyles";
-import { money, numberMask } from "components/masks";
-import { BiPlusCircle, BiMinusCircle } from "react-icons/bi";
-import { IoMdTrash } from "react-icons/io";
-import { useDispatch } from "react-redux";
-import { updateItem, removeProduct } from "services/redux";
+import plus from "@/../public/circlePlus.svg";
+import minus from "@/../public/circleMinus.svg";
+import trash from "@/../public/trash.svg";
+import { money } from "@/utils/money";
+import { Cart, CartUpdater } from "@/context/cart";
 
-interface MovieOnCartProps {
+interface CartItemProps {
     id: string;
-    name: string;
+    title: string;
     price: number;
-    image: string;
     quantity: number;
-    idx: number;
-    items: any[];
-    setItems: Function;
+    image: string;
 }
 
 export default function CartItem({
     id,
-    name,
+    title,
     price,
-    image,
     quantity,
-    items,
-    setItems,
-    idx,
-}: MovieOnCartProps) {
-    const dispatch = useDispatch();
-    const [quantityCounter, setQuantityCounter] = useState(quantity);
+    image,
+}: CartItemProps) {
+    const cart = useContext(Cart);
+    const setCart: any = useContext(CartUpdater).update;
 
-    // ? delete the item of the cart
-    function removeItem() {
-        const output: any[] = [];
-        items.map((product, index) =>
-            index === idx ? null : output.push(product)
+    function handleAdd() {
+        let output = cart.map((item: any) =>
+            item.id === id ? { ...item, quantity: quantity + 1 } : item
         );
-        setItems(output);
-        dispatch(
-            removeProduct({
-                id: id,
-            })
-        );
+        setCart(output);
     }
 
-    // ? update the global state and the cookies of the cart
-    useEffect(() => {
-        dispatch(
-            updateItem({
-                id: id,
-                name: name,
-                quantity: quantityCounter,
-                price: price,
-                image: image,
-            })
+    function handleSubtract() {
+        let output = cart.map((item: any) =>
+            item.id === id ? { ...item, quantity: quantity - 1 } : item
         );
-    }, [quantityCounter]);
+        output = output.filter((item: any) => item.quantity > 0);
+        setCart(output);
+    }
 
-    // ? update the total counter
-    useEffect(() => {
-        const output: any = [];
-        items.map((product, index) =>
-            index === idx
-                ? output.push({
-                      id: id,
-                      name: name,
-                      price: price,
-                      image: image,
-                      quantity: quantityCounter,
-                  })
-                : output.push(product)
-        );
-        setItems(output);
-    }, [quantityCounter]);
+    function handleDelete() {
+        let output = cart.filter((item: any) => item.id !== id);
+        setCart(output);
+    }
 
     return (
-        <tr>
-            <td>
-                <G.Line justify="start" top="8px" bottom="8px" left="10px">
-                    <img src={image} alt={name} height={114} />
-                </G.Line>
-            </td>
-            <td>
-                <G.Line justify="start">
-                    <div>
-                        <G.Text color="#2F2E41" size="14px" weight="700">
-                            {name}
-                        </G.Text>
-                        <G.Text color="#2F2E41" size="14px" weight="700">
-                            {money.format(price)}
-                        </G.Text>
-                    </div>
-                </G.Line>
-            </td>
-            <td>
-                <G.Line justify="start">
-                    {quantityCounter > 1 ? (
-                        <S.OpacityHover
-                            onClick={() =>
-                                setQuantityCounter(quantityCounter - 1)
-                            }
-                        >
-                            <BiMinusCircle size="1.8em" />
-                        </S.OpacityHover>
-                    ) : (
-                        <S.OpacityHover disabled>
-                            <BiMinusCircle size="1.8em" />
-                        </S.OpacityHover>
-                    )}
-                    <S.Input
-                        value={quantityCounter}
-                        onChange={(e) =>
-                            setQuantityCounter(
-                                Number(numberMask(e.target.value))
-                            )
-                        }
-                    />
-                    <S.OpacityHover
-                        onClick={() => setQuantityCounter(quantityCounter + 1)}
+        <>
+            {
+                // * desktop version * //
+                <>
+                    <G.Line
+                        justify="flex-start"
+                        gap="16px"
+                        top="24px"
+                        desktopOnly={true}
                     >
-                        <BiPlusCircle size="1.8em" />
-                    </S.OpacityHover>
+                        <img
+                            src={image}
+                            style={{
+                                width: "91px",
+                                height: "114px",
+                            }}
+                        />
+                        <G.Line direction="column" gap="8px" align="flex-start">
+                            <G.Text weight="700" size="14px" color="#2F2E41">
+                                {title}
+                            </G.Text>
+                            <G.Text weight="700" size="16px" color="#2F2E41">
+                                {money.format(price)}
+                            </G.Text>
+                        </G.Line>
+                    </G.Line>
+                    <G.Line
+                        justify="flex-start"
+                        gap="11px"
+                        top="24px"
+                        desktopOnly={true}
+                    >
+                        <S.TransparentButton onClick={() => handleSubtract()}>
+                            <img src={minus.src} />
+                        </S.TransparentButton>
+                        <S.NumberBox>{quantity}</S.NumberBox>
+                        <S.TransparentButton onClick={() => handleAdd()}>
+                            <img src={plus.src} />
+                        </S.TransparentButton>
+                    </G.Line>
+                    <G.Line
+                        justify="flex-start"
+                        gap="11px"
+                        top="24px"
+                        desktopOnly={true}
+                    >
+                        <G.Text color="#2F2E41" size="16px" weight="700">
+                            {money.format(quantity * price)}
+                        </G.Text>
+                    </G.Line>
+                    <G.Line
+                        justify="flex-end"
+                        gap="11px"
+                        top="24px"
+                        desktopOnly={true}
+                    >
+                        <S.TransparentButton onClick={() => handleDelete()}>
+                            <img src={trash.src} />
+                        </S.TransparentButton>
+                    </G.Line>
+                </>
+            }
+
+            {
+                // * mobile version * //
+                <G.Line
+                    justify="flex-start"
+                    width="100%"
+                    gap="16px"
+                    mobileOnly={true}
+                >
+                    <img
+                        src={image}
+                        style={{
+                            width: "64px",
+                            height: "82px",
+                        }}
+                    />
+                    <G.Line
+                        width="100%"
+                        justify="space-between"
+                        direction="column"
+                        height="82px"
+                    >
+                        <G.Line
+                            justify="space-between"
+                            height="100%"
+                            gap="16px"
+                            width="100%"
+                        >
+                            <G.Text
+                                color="#2F2E41"
+                                align="left"
+                                size="14px"
+                                weight="700"
+                            >
+                                {title}
+                            </G.Text>
+                            <G.Line gap="11px">
+                                <G.Text
+                                    color="#2F2E41"
+                                    size="16px"
+                                    weight="700"
+                                >
+                                    {money.format(price)}
+                                </G.Text>
+                                <S.TransparentButton
+                                    onClick={() => handleDelete()}
+                                >
+                                    <img src={trash.src} />
+                                </S.TransparentButton>
+                            </G.Line>
+                        </G.Line>
+                        <G.Line justify="space-between" gap="8px" width="100%">
+                            <G.Line justify="flex-start" gap="11px">
+                                <S.TransparentButton
+                                    onClick={() => handleSubtract()}
+                                >
+                                    <img src={minus.src} />
+                                </S.TransparentButton>
+                                <S.NumberBox>{quantity}</S.NumberBox>
+                                <S.TransparentButton
+                                    onClick={() => handleAdd()}
+                                >
+                                    <img src={plus.src} />
+                                </S.TransparentButton>
+                            </G.Line>
+                            <div>
+                                <G.Text
+                                    size="12px"
+                                    color="#999999"
+                                    weight="700"
+                                >
+                                    SUBTOTAL
+                                </G.Text>
+                                <G.Text
+                                    size="16px"
+                                    color="background: #2F2E41;
+"
+                                    weight="700"
+                                >
+                                    {money.format(price * quantity)}
+                                </G.Text>
+                            </div>
+                        </G.Line>
+                    </G.Line>
                 </G.Line>
-            </td>
-            <td>
-                <G.Text color="#2F2E41" size="14px" weight="700">
-                    {money.format(quantityCounter * price)}
-                </G.Text>
-            </td>
-            <td>
-                <G.Line left="36px" right="36px">
-                    <S.OpacityHover onClick={() => removeItem()}>
-                        <IoMdTrash size="2em" color="#009EDD" />
-                    </S.OpacityHover>
-                </G.Line>
-            </td>
-        </tr>
+            }
+        </>
     );
 }

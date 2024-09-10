@@ -1,40 +1,22 @@
-# We Movies
 
-![GitHub](https://img.shields.io/github/license/vimigueloli/wemovies?color=brigthgreen&style=plastic) <br/>
+![GitHub](https://img.shields.io/badge/-Next.js-4e8dec?)
+![GitHub](https://img.shields.io/badge/-Typescript-4e8dec?)
+![GitHub](https://img.shields.io/badge/-StyledComponents-4e8dec?)
+![GitHub](https://img.shields.io/badge/-Axios-4e8dec?)
 
-#### This project is a simple ecommerce model made with next.js using redux and nookies to update and persist the shopping cart. The project also uses json-server to simulate an API.
-</br>
+# Wemovies
+Projeto de e-commerce, voltado para mídias digitais, consume uma [API](https://wefit-movies.vercel.app/api/movies) para listagem dos produtos.
 
-# How to run the project
+![landing page](./public/printHome.png)
 
-![GitHub](https://img.shields.io/badge/Dependencies-React-4e8dec?style=plastic)
-![GitHub](https://img.shields.io/badge/-redux-4e8dec?style=plastic)
-![GitHub](https://img.shields.io/badge/-react_redux-4e8dec?style=plastic)
-![GitHub](https://img.shields.io/badge/-styled_components-4e8dec?style=plastic)
-![GitHub](https://img.shields.io/badge/-nookies-4e8dec?style=plastic)
+O projeto utilizou do "useContext" do próprio React para salvar os produtos no carrinho e gerenciar os estados de maneira global. Além disso os produtos adicionados ao carrinho são salvos no armazenamento local do navegador, para que possam ficar salvos no dispositivo mesmo que o usuário feche o site.
 
+Por fim para rodar o projeto você precisa acessar o terminal, se direcionar ao repositório deste projeto e executar os seguintes comandos:
 
-#### To run this project you'll need to type some command lines at the prompt as the following instructions:
+```bash
 
-```
-1 - clone the project and move to its folder
-
-git clone https://github.com/vimigueloli/wemovies.git
-cd wemovies
-
-
-2 - install the dependencies and create a build
-yarn
-yarn build
-
-
-3 - run the json-server fake api
-yarn server
-
-
-4 - in another instance move to the wemovies folder an run the project
-yarn start
+    npm i
+    npm run build
+    npm start
 
 ```
-
-##### If you are reading the code of this project in Visual Code Studio it's recommended to install the "Better Comments" extension.

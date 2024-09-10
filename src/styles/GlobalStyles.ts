@@ -27,6 +27,11 @@ interface LineProps {
   justify?: string;
   align?: string;
   noPrint?: boolean;
+  gap?: string
+  direction?: string;
+  mobileOnly?: boolean;
+  desktopOnly?: boolean;
+  wrap?: boolean;
 }
 
 
@@ -35,14 +40,18 @@ export const Line = styled.div<LineProps>`
   width: ${props=> props.width? props.width : 'auto'};
   justify-content: ${props => props.justify || 'center'};
   align-items: ${props => props.align || 'center'};
-  flex-direction: row;  
+  flex-direction: ${props=> props.direction? props.direction : 'row'};  
   background-color: ${props=> props.color || '#ffffff00'};
   margin-bottom: ${props=> props.bottom || '0'};
   margin-top: ${props=> props.top || '0'};
   height: ${props=> props.height || 'auto'};
   padding-left: ${props=> props.left || '0'};
   padding-right: ${props=> props.right || '0'};
+  flex-wrap: ${props=> props.wrap? 'wrap' :  'no-wrap'};
   ${props => props.noPrint && `@media print { display: none; }`};
+  ${props => props.mobileOnly && `@media (min-width: 1082px) { display: none; }`};
+  ${props => props.desktopOnly && `@media (max-width: 1082px) { display: none; }`};
+  ${props => props.gap && `gap: ${props.gap}`};
 `;
 
 interface TextProps{
@@ -51,11 +60,15 @@ interface TextProps{
     weight?: string;
     align?: string;
     width?: string;
+    left?: string;
+    right?: string;
 }
 
 export const Text = styled.div<TextProps>`
     width: ${props=> props.width? props.width : 'auto'};
     color: ${props=> props.color || '#ffffff'};
+    padding-left: ${props=> props.left || '0'};
+    padding-right: ${props=> props.right || '0'};
     font-size: ${props=> props.size || '14px'};
     font-weight: ${props=> props.weight || 'normal'};
     text-align: ${props=> props.align || 'left'};
@@ -80,8 +93,10 @@ export const Button = styled.button<ButtonProps>`
     font-size: ${props=> props.size? props.size : '14px'};
     padding: 7px;
     cursor: pointer;
-    transition-duration: 0.5s;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
     :hover{
-        opacity: 65%;
+        transition: opacity 0.5s ease-in-out;
+        opacity: 0.4;
     }
 `;
